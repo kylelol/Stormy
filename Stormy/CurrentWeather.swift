@@ -7,23 +7,85 @@
 //
 
 import Foundation
+import UIKit
+
+enum Icon: String {
+    case ClearDay = "clear-day"
+    case ClearNight = "clear-night"
+    case Rain = "rain"
+    case Snow = "snow"
+    case Sleet = "sleet"
+    case Wind = "wind"
+    case Fog = "fog"
+    case Cloudy = "cloudy"
+    case PartlyCloudyDay = "partly-cloudy-day"
+    case PartlyCloudyNight = "partly-cloudy-night"
+    
+    func toImage() -> UIImage? {
+        var imageName: String
+        
+        switch self {
+        case .ClearDay:
+            imageName = "clear-day.png"
+        case .ClearNight:
+            imageName = "clear-night.png"
+        case .Rain:
+            imageName = "rain.png"
+        case .Snow:
+            imageName = "snow.png"
+        case .Sleet:
+            imageName = "sleet.png"
+        case .Wind:
+            imageName = "wind.png"
+        case .Fog:
+            imageName = "fog.png"
+        case .Cloudy:
+            imageName = "cloudy.png"
+        case .PartlyCloudyDay:
+            imageName = "cloudy-day.png"
+        case .PartlyCloudyNight:
+            imageName = "cloudy-night.png"
+        default:
+            imageName = "default.png"
+        }
+        
+        return UIImage(named: imageName)
+    }
+}
 
 struct CurrentWeather {
     
-    let temperature: Int
-    let humidity: Int
-    let percipProbability: Int
-    let summary: String
+    let temperature: Int?
+    let humidity: Int?
+    let percipProbability: Int?
+    let summary: String?
+    let icon: UIImage?
     
     
     init(weatherDictionary: [String: AnyObject]) {
         
-        temperature = weatherDictionary["temperature"] as! Int
-        let humidityFloat = weatherDictionary["humidity"] as! Double
-        humidity = Int(humidityFloat*100)
-        let percipFloat = weatherDictionary["precipProbability"] as! Double
-        percipProbability = Int(percipFloat*100)
-        summary = weatherDictionary["summary"] as! String
+        temperature = weatherDictionary["temperature"] as? Int
+        if let humidityFloat = weatherDictionary["humidity"] as? Double {
+            humidity = Int(humidityFloat*100)
+
+        } else {
+            humidity = nil
+        }
+        
+        if let percipFloat = weatherDictionary["precipProbability"] as? Double {
+            percipProbability = Int(percipFloat*100)
+
+        } else {
+            percipProbability = nil
+        }
+        
+        summary = weatherDictionary["summary"] as? String
+        
+        if let iconString = weatherDictionary["icon"] as? String, let weatherIcon: Icon = Icon(rawValue: iconString) {
+            icon = weatherIcon.toImage()
+        } else {
+            icon = UIImage(named: "default.png")
+        }
     }
     
 }

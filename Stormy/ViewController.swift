@@ -13,25 +13,44 @@ class ViewController: UIViewController {
     @IBOutlet weak var currentTemperatureLabel: UILabel?
     @IBOutlet weak var currentHumidityLabel: UILabel?
     @IBOutlet weak var currentPercipitationLabel: UILabel?
+    @IBOutlet weak var currentWeatherIcon: UIImageView?
+    
+    private let forecastAPIKey = "b5fdaad10e0fdd8bc678ba07832e2c6a"
+    let coordinate: (lat: Double, long: Double) = (37.8267,-122.423)
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        if let plistPath = NSBundle.mainBundle().pathForResource("CurrentWeather", ofType: ".plist"),
-            let weatherDictionary = NSDictionary(contentsOfFile: plistPath),
-            let currentWeatherDictionary = weatherDictionary["currently"] as? [String: AnyObject] {
-                
-                let currentWeather = CurrentWeather(weatherDictionary: currentWeatherDictionary)
-                
-                currentTemperatureLabel?.text = "\(currentWeather.temperature)º"
-                
-                currentHumidityLabel?.text = "\(currentWeather.humidity)%"
-                currentPercipitationLabel?.text = "\(currentWeather.percipProbability)%"
-            
-
+        let forecastService = ForecastService(APIKey: forecastAPIKey)
+        forecastService.getForecast(coordinate.lat, long: coordinate.long) {
+            (let currently) in
+            if let currentWeather = currently {
+                dispatch_async(dispatch_get_main_queue()) {
+                    
+                    if let currentTemp = currentWeather.temperature {
+                        self.currentTemperatureLabel?.text = "\(currentTemp)º"
+                    }
+                    
+                    if let humidity = currentWeather.humidity {
+                        self.currentHumidityLabel?.text = "\(humidity)%"
+                    }
+                    
+                    if let percipitation = currentWeather.percipProbability {
+                        self.currentPercipitationLabel?.text = "\(percipitation)%"
+                    }
+                    
+                    if let image = currentWeather.icon {
+                        self.currentWeatherIcon?.image = image
+                    }
+                    
+                }
+            }
         }
+        
+
+
     }
 
     override func didReceiveMemoryWarning() {
